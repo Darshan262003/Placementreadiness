@@ -1,0 +1,426 @@
+import { useState } from 'react'
+import { Plus, Trash2, RefreshCw } from 'lucide-react'
+import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/Card'
+import { useResume } from '../../components/AIResumeLayout'
+import { SAMPLE_RESUME, type Education, type Experience, type Project } from '../../types/aiResume'
+import ResumePreview from './ResumePreview'
+
+function Builder() {
+  const { resume, updateResume, updatePersonalInfo, updateLinks, setResume } = useResume()
+  const [skillsInput, setSkillsInput] = useState(resume.skills.join(', '))
+
+  const handleLoadSample = () => {
+    setResume(SAMPLE_RESUME)
+    setSkillsInput(SAMPLE_RESUME.skills.join(', '))
+  }
+
+  const handleSkillsChange = (value: string) => {
+    setSkillsInput(value)
+    const skills = value.split(',').map(s => s.trim()).filter(Boolean)
+    updateResume({ skills })
+  }
+
+  // Education handlers
+  const addEducation = () => {
+    const newEd: Education = {
+      id: Date.now().toString(),
+      school: '',
+      degree: '',
+      field: '',
+      startDate: '',
+      endDate: ''
+    }
+    updateResume({ education: [...resume.education, newEd] })
+  }
+
+  const updateEducation = (id: string, updates: Partial<Education>) => {
+    updateResume({
+      education: resume.education.map(ed => ed.id === id ? { ...ed, ...updates } : ed)
+    })
+  }
+
+  const removeEducation = (id: string) => {
+    updateResume({
+      education: resume.education.filter(ed => ed.id !== id)
+    })
+  }
+
+  // Experience handlers
+  const addExperience = () => {
+    const newExp: Experience = {
+      id: Date.now().toString(),
+      company: '',
+      title: '',
+      startDate: '',
+      endDate: '',
+      description: ''
+    }
+    updateResume({ experience: [...resume.experience, newExp] })
+  }
+
+  const updateExperience = (id: string, updates: Partial<Experience>) => {
+    updateResume({
+      experience: resume.experience.map(exp => exp.id === id ? { ...exp, ...updates } : exp)
+    })
+  }
+
+  const removeExperience = (id: string) => {
+    updateResume({
+      experience: resume.experience.filter(exp => exp.id !== id)
+    })
+  }
+
+  // Project handlers
+  const addProject = () => {
+    const newProj: Project = {
+      id: Date.now().toString(),
+      name: '',
+      description: ''
+    }
+    updateResume({ projects: [...resume.projects, newProj] })
+  }
+
+  const updateProject = (id: string, updates: Partial<Project>) => {
+    updateResume({
+      projects: resume.projects.map(proj => proj.id === id ? { ...proj, ...updates } : proj)
+    })
+  }
+
+  const removeProject = (id: string) => {
+    updateResume({
+      projects: resume.projects.filter(proj => proj.id !== id)
+    })
+  }
+
+  return (
+    <div className="max-w-7xl mx-auto px-6 py-8">
+      {/* Header */}
+      <div className="flex items-center justify-between mb-8">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900">Resume Builder</h1>
+          <p className="text-gray-600">Fill in your details to build your resume</p>
+        </div>
+        <button
+          onClick={handleLoadSample}
+          className="flex items-center gap-2 px-4 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
+        >
+          <RefreshCw className="w-4 h-4" />
+          Load Sample Data
+        </button>
+      </div>
+
+      <div className="flex gap-8">
+        {/* Left: Form */}
+        <div className="flex-1 space-y-6">
+          {/* Personal Info */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base">Personal Information</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Name</label>
+                  <input
+                    type="text"
+                    value={resume.personalInfo.name}
+                    onChange={(e) => updatePersonalInfo({ name: e.target.value })}
+                    placeholder="John Doe"
+                    className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-gray-200 focus:border-gray-400 outline-none"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                  <input
+                    type="email"
+                    value={resume.personalInfo.email}
+                    onChange={(e) => updatePersonalInfo({ email: e.target.value })}
+                    placeholder="john@email.com"
+                    className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-gray-200 focus:border-gray-400 outline-none"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Phone</label>
+                  <input
+                    type="tel"
+                    value={resume.personalInfo.phone}
+                    onChange={(e) => updatePersonalInfo({ phone: e.target.value })}
+                    placeholder="+1 (555) 123-4567"
+                    className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-gray-200 focus:border-gray-400 outline-none"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Location</label>
+                  <input
+                    type="text"
+                    value={resume.personalInfo.location}
+                    onChange={(e) => updatePersonalInfo({ location: e.target.value })}
+                    placeholder="San Francisco, CA"
+                    className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-gray-200 focus:border-gray-400 outline-none"
+                  />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Summary */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base">Professional Summary</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <textarea
+                value={resume.summary}
+                onChange={(e) => updateResume({ summary: e.target.value })}
+                placeholder="Brief overview of your professional background and key strengths..."
+                rows={4}
+                className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-gray-200 focus:border-gray-400 outline-none resize-none"
+              />
+            </CardContent>
+          </Card>
+
+          {/* Education */}
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between">
+              <CardTitle className="text-base">Education</CardTitle>
+              <button
+                onClick={addEducation}
+                className="flex items-center gap-1 px-3 py-1 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
+              >
+                <Plus className="w-4 h-4" />
+                Add
+              </button>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {resume.education.map((ed) => (
+                <div key={ed.id} className="p-4 bg-gray-50 rounded-lg space-y-3">
+                  <div className="grid grid-cols-2 gap-3">
+                    <input
+                      type="text"
+                      value={ed.school}
+                      onChange={(e) => updateEducation(ed.id, { school: e.target.value })}
+                      placeholder="School/University"
+                      className="px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-gray-200 focus:border-gray-400 outline-none"
+                    />
+                    <input
+                      type="text"
+                      value={ed.degree}
+                      onChange={(e) => updateEducation(ed.id, { degree: e.target.value })}
+                      placeholder="Degree"
+                      className="px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-gray-200 focus:border-gray-400 outline-none"
+                    />
+                    <input
+                      type="text"
+                      value={ed.field}
+                      onChange={(e) => updateEducation(ed.id, { field: e.target.value })}
+                      placeholder="Field of Study"
+                      className="px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-gray-200 focus:border-gray-400 outline-none"
+                    />
+                    <div className="flex gap-2">
+                      <input
+                        type="text"
+                        value={ed.startDate}
+                        onChange={(e) => updateEducation(ed.id, { startDate: e.target.value })}
+                        placeholder="Start"
+                        className="flex-1 px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-gray-200 focus:border-gray-400 outline-none"
+                      />
+                      <input
+                        type="text"
+                        value={ed.endDate}
+                        onChange={(e) => updateEducation(ed.id, { endDate: e.target.value })}
+                        placeholder="End"
+                        className="flex-1 px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-gray-200 focus:border-gray-400 outline-none"
+                      />
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => removeEducation(ed.id)}
+                    className="flex items-center gap-1 text-sm text-red-600 hover:text-red-700"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                    Remove
+                  </button>
+                </div>
+              ))}
+            </CardContent>
+          </Card>
+
+          {/* Experience */}
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between">
+              <CardTitle className="text-base">Experience</CardTitle>
+              <button
+                onClick={addExperience}
+                className="flex items-center gap-1 px-3 py-1 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
+              >
+                <Plus className="w-4 h-4" />
+                Add
+              </button>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {resume.experience.map((exp) => (
+                <div key={exp.id} className="p-4 bg-gray-50 rounded-lg space-y-3">
+                  <div className="grid grid-cols-2 gap-3">
+                    <input
+                      type="text"
+                      value={exp.company}
+                      onChange={(e) => updateExperience(exp.id, { company: e.target.value })}
+                      placeholder="Company"
+                      className="px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-gray-200 focus:border-gray-400 outline-none"
+                    />
+                    <input
+                      type="text"
+                      value={exp.title}
+                      onChange={(e) => updateExperience(exp.id, { title: e.target.value })}
+                      placeholder="Job Title"
+                      className="px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-gray-200 focus:border-gray-400 outline-none"
+                    />
+                    <div className="flex gap-2">
+                      <input
+                        type="text"
+                        value={exp.startDate}
+                        onChange={(e) => updateExperience(exp.id, { startDate: e.target.value })}
+                        placeholder="Start"
+                        className="flex-1 px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-gray-200 focus:border-gray-400 outline-none"
+                      />
+                      <input
+                        type="text"
+                        value={exp.endDate}
+                        onChange={(e) => updateExperience(exp.id, { endDate: e.target.value })}
+                        placeholder="End"
+                        className="flex-1 px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-gray-200 focus:border-gray-400 outline-none"
+                      />
+                    </div>
+                  </div>
+                  <textarea
+                    value={exp.description}
+                    onChange={(e) => updateExperience(exp.id, { description: e.target.value })}
+                    placeholder="Job description and achievements..."
+                    rows={3}
+                    className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-gray-200 focus:border-gray-400 outline-none resize-none"
+                  />
+                  <button
+                    onClick={() => removeExperience(exp.id)}
+                    className="flex items-center gap-1 text-sm text-red-600 hover:text-red-700"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                    Remove
+                  </button>
+                </div>
+              ))}
+            </CardContent>
+          </Card>
+
+          {/* Projects */}
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between">
+              <CardTitle className="text-base">Projects</CardTitle>
+              <button
+                onClick={addProject}
+                className="flex items-center gap-1 px-3 py-1 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
+              >
+                <Plus className="w-4 h-4" />
+                Add
+              </button>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {resume.projects.map((proj) => (
+                <div key={proj.id} className="p-4 bg-gray-50 rounded-lg space-y-3">
+                  <input
+                    type="text"
+                    value={proj.name}
+                    onChange={(e) => updateProject(proj.id, { name: e.target.value })}
+                    placeholder="Project Name"
+                    className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-gray-200 focus:border-gray-400 outline-none"
+                  />
+                  <textarea
+                    value={proj.description}
+                    onChange={(e) => updateProject(proj.id, { description: e.target.value })}
+                    placeholder="Project description..."
+                    rows={2}
+                    className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-gray-200 focus:border-gray-400 outline-none resize-none"
+                  />
+                  <input
+                    type="text"
+                    value={proj.link || ''}
+                    onChange={(e) => updateProject(proj.id, { link: e.target.value })}
+                    placeholder="Project Link (optional)"
+                    className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-gray-200 focus:border-gray-400 outline-none"
+                  />
+                  <button
+                    onClick={() => removeProject(proj.id)}
+                    className="flex items-center gap-1 text-sm text-red-600 hover:text-red-700"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                    Remove
+                  </button>
+                </div>
+              ))}
+            </CardContent>
+          </Card>
+
+          {/* Skills */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base">Skills</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <textarea
+                value={skillsInput}
+                onChange={(e) => handleSkillsChange(e.target.value)}
+                placeholder="React, TypeScript, Node.js, Python, AWS..."
+                rows={3}
+                className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-gray-200 focus:border-gray-400 outline-none resize-none"
+              />
+              <p className="text-xs text-gray-500 mt-2">Separate skills with commas</p>
+            </CardContent>
+          </Card>
+
+          {/* Links */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base">Links</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">GitHub</label>
+                <input
+                  type="text"
+                  value={resume.links.github}
+                  onChange={(e) => updateLinks({ github: e.target.value })}
+                  placeholder="github.com/username"
+                  className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-gray-200 focus:border-gray-400 outline-none"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">LinkedIn</label>
+                <input
+                  type="text"
+                  value={resume.links.linkedin}
+                  onChange={(e) => updateLinks({ linkedin: e.target.value })}
+                  placeholder="linkedin.com/in/username"
+                  className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-gray-200 focus:border-gray-400 outline-none"
+                />
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Right: Live Preview */}
+        <div className="w-[450px] sticky top-24 h-fit">
+          <div className="bg-white rounded-lg shadow-lg border border-gray-200 overflow-hidden">
+            <div className="px-4 py-3 bg-gray-50 border-b border-gray-200 flex items-center justify-between">
+              <span className="text-sm font-medium text-gray-700">Live Preview</span>
+              <span className="text-xs text-gray-400">Updates automatically</span>
+            </div>
+            <div className="p-6">
+              <ResumePreview resume={resume} />
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+export default Builder

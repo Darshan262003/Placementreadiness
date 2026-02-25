@@ -26,6 +26,13 @@ import Test from './pages/resume-builder/Test'
 import ShipStep from './pages/resume-builder/Ship'
 import Proof from './pages/resume-builder/Proof'
 
+// AI Resume imports
+import AIResumeLayout from './components/AIResumeLayout'
+import AIResumeHome from './pages/ai-resume/Home'
+import AIResumeBuilder from './pages/ai-resume/Builder'
+import AIResumePreview from './pages/ai-resume/Preview'
+import AIResumeProof from './pages/ai-resume/Proof'
+
 function App() {
   return (
     <BrowserRouter>
@@ -58,6 +65,14 @@ function App() {
           <Route path="07-test" element={<Test />} />
           <Route path="08-ship" element={<ShipStep />} />
           <Route path="proof" element={<Proof />} />
+        </Route>
+
+        {/* AI Resume Routes */}
+        <Route path="/ai-resume" element={<AIResumeLayout />}>
+          <Route index element={<AIResumeHome />} />
+          <Route path="builder" element={<AIResumeBuilder />} />
+          <Route path="preview" element={<AIResumePreview />} />
+          <Route path="proof" element={<AIResumeProof />} />
         </Route>
 
         {/* Redirect unknown routes to landing */}
