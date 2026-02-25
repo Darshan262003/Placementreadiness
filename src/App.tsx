@@ -11,6 +11,8 @@ import Profile from './pages/Profile'
 import Analyzer from './pages/Analyzer'
 import Results from './pages/Results'
 import History from './pages/History'
+import TestChecklistPage from './pages/TestChecklist'
+import Ship from './pages/Ship'
 
 function App() {
   return (
@@ -25,6 +27,8 @@ function App() {
           <Route path="analyzer" element={<Analyzer />} />
           <Route path="results" element={<Results />} />
           <Route path="history" element={<History />} />
+          <Route path="test" element={<TestChecklistPage />} />
+          <Route path="ship" element={<Ship />} />
           <Route path="practice" element={<Practice />} />
           <Route path="assessments" element={<Assessments />} />
           <Route path="resources" element={<Resources />} />

@@ -1,5 +1,5 @@
 import { Outlet, NavLink } from 'react-router-dom'
-import { LayoutDashboard, Code2, ClipboardList, BookOpen, User, Menu, Sparkles, History } from 'lucide-react'
+import { LayoutDashboard, Code2, ClipboardList, BookOpen, User, Menu, Sparkles, History, CheckSquare, Rocket } from 'lucide-react'
 import { useState } from 'react'
 
 function DashboardLayout() {
@@ -13,6 +13,8 @@ function DashboardLayout() {
     { path: '/assessments', label: 'Assessments', icon: ClipboardList },
     { path: '/resources', label: 'Resources', icon: BookOpen },
     { path: '/profile', label: 'Profile', icon: User },
+    { path: '/test', label: 'Test Checklist', icon: CheckSquare },
+    { path: '/ship', label: 'Ship', icon: Rocket },
   ]
 
   return (
