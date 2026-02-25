@@ -1,13 +1,17 @@
-import { useState } from 'react'
-import { Plus, Trash2, RefreshCw } from 'lucide-react'
+import { useState, useMemo } from 'react'
+import { Plus, Trash2, RefreshCw, Lightbulb } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/Card'
 import { useResume } from '../../components/AIResumeLayout'
 import { SAMPLE_RESUME, type Education, type Experience, type Project } from '../../types/aiResume'
 import ResumePreview from './ResumePreview'
+import { calculateATSScore, getScoreLabel, getScoreColor, getScoreBgColor } from '../../utils/atsScoring'
 
 function Builder() {
   const { resume, updateResume, updatePersonalInfo, updateLinks, setResume } = useResume()
   const [skillsInput, setSkillsInput] = useState(resume.skills.join(', '))
+
+  // Calculate ATS score
+  const atsScore = useMemo(() => calculateATSScore(resume), [resume])
 
   const handleLoadSample = () => {
     setResume(SAMPLE_RESUME)
@@ -406,8 +410,66 @@ function Builder() {
           </Card>
         </div>
 
-        {/* Right: Live Preview */}
-        <div className="w-[450px] sticky top-24 h-fit">
+        {/* Right: ATS Score + Live Preview */}
+        <div className="w-[450px] sticky top-24 h-fit space-y-4">
+          {/* ATS Score Card */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base flex items-center justify-between">
+                <span>ATS Readiness Score</span>
+                <span className={`text-2xl font-bold ${getScoreColor(atsScore.score)}`}>
+                  {atsScore.score}
+                </span>
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {/* Score Meter */}
+              <div className="relative">
+                <div className="w-full h-3 bg-gray-100 rounded-full overflow-hidden">
+                  <div 
+                    className={`h-full ${getScoreBgColor(atsScore.score)} transition-all duration-500`}
+                    style={{ width: `${atsScore.score}%` }}
+                  />
+                </div>
+                <div className="flex justify-between mt-2 text-xs text-gray-400">
+                  <span>0</span>
+                  <span className={`font-medium ${getScoreColor(atsScore.score)}`}>
+                    {getScoreLabel(atsScore.score)}
+                  </span>
+                  <span>100</span>
+                </div>
+              </div>
+
+              {/* Suggestions */}
+              {atsScore.suggestions.length > 0 && (
+                <div className="pt-4 border-t border-gray-100">
+                  <div className="flex items-center gap-2 mb-3">
+                    <Lightbulb className="w-4 h-4 text-amber-500" />
+                    <span className="text-sm font-medium text-gray-700">Suggestions</span>
+                  </div>
+                  <ul className="space-y-2">
+                    {atsScore.suggestions.map((suggestion, index) => (
+                      <li key={index} className="text-sm text-gray-600 flex items-start gap-2">
+                        <span className="w-1.5 h-1.5 bg-amber-400 rounded-full mt-2 flex-shrink-0" />
+                        {suggestion}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
+              {/* Score Breakdown (collapsed by default, shown when score is good) */}
+              {atsScore.score >= 75 && (
+                <div className="pt-4 border-t border-gray-100">
+                  <p className="text-xs text-green-600 font-medium">
+                    Great job! Your resume is ATS-ready.
+                  </p>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Live Preview */}
           <div className="bg-white rounded-lg shadow-lg border border-gray-200 overflow-hidden">
             <div className="px-4 py-3 bg-gray-50 border-b border-gray-200 flex items-center justify-between">
               <span className="text-sm font-medium text-gray-700">Live Preview</span>

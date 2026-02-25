@@ -114,7 +114,7 @@ export const SAMPLE_RESUME: ResumeData = {
   }
 }
 
-export const RESUME_STORAGE_KEY = 'ai_resume_data'
+export const RESUME_STORAGE_KEY = 'resumeBuilderData'
 
 export function getResumeData(): ResumeData {
   if (typeof window === 'undefined') return DEFAULT_RESUME

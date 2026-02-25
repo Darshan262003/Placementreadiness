@@ -8,9 +8,19 @@ interface ResumePreviewProps {
 function ResumePreview({ resume }: ResumePreviewProps) {
   const { personalInfo, summary, education, experience, projects, skills, links } = resume
 
+  // Check if sections have content
+  const hasPersonalInfo = personalInfo.name || personalInfo.email || personalInfo.phone || personalInfo.location
+  const hasSummary = summary.trim().length > 0
+  const hasEducation = education.length > 0 && education.some(ed => ed.school.trim())
+  const hasExperience = experience.length > 0 && experience.some(exp => exp.company.trim() || exp.title.trim())
+  const hasProjects = projects.length > 0 && projects.some(proj => proj.name.trim())
+  const hasSkills = skills.length > 0
+  const hasLinks = links.github.trim() || links.linkedin.trim()
+
   return (
     <div className="text-gray-900 font-sans text-sm">
-      {/* Header */}
+      {/* Header - Always show if any personal info exists */}
+      {hasPersonalInfo && (
       <div className="text-center border-b-2 border-gray-900 pb-4 mb-4">
         <h1 className="text-2xl font-bold text-gray-900 mb-2">
           {personalInfo.name || 'Your Name'}
@@ -48,6 +58,7 @@ function ResumePreview({ resume }: ResumePreviewProps) {
           )}
         </div>
       </div>
+      )}
 
       {/* Summary */}
       {summary && (
@@ -135,7 +146,7 @@ function ResumePreview({ resume }: ResumePreviewProps) {
       )}
 
       {/* Skills */}
-      {skills.length > 0 && (
+      {hasSkills && (
         <div>
           <h2 className="text-sm font-bold uppercase tracking-wider border-b border-gray-300 pb-1 mb-2">
             Skills
@@ -144,8 +155,31 @@ function ResumePreview({ resume }: ResumePreviewProps) {
         </div>
       )}
 
+      {/* Links Section */}
+      {hasLinks && (
+        <div className="mt-4 pt-4 border-t border-gray-200">
+          <h2 className="text-sm font-bold uppercase tracking-wider border-b border-gray-300 pb-1 mb-2">
+            Links
+          </h2>
+          <div className="flex flex-wrap gap-4 text-xs">
+            {links.github && (
+              <span className="flex items-center gap-1">
+                <Github className="w-3 h-3" />
+                {links.github}
+              </span>
+            )}
+            {links.linkedin && (
+              <span className="flex items-center gap-1">
+                <Linkedin className="w-3 h-3" />
+                {links.linkedin}
+              </span>
+            )}
+          </div>
+        </div>
+      )}
+
       {/* Empty State */}
-      {!personalInfo.name && !summary && experience.length === 0 && education.length === 0 && projects.length === 0 && skills.length === 0 && (
+      {!hasPersonalInfo && !hasSummary && !hasExperience && !hasEducation && !hasProjects && !hasSkills && (
         <div className="text-center py-12 text-gray-400">
           <p className="text-sm">Your resume preview will appear here</p>
           <p className="text-xs mt-1">Start filling in your details</p>
