@@ -51,14 +51,14 @@ function Results() {
       })
       
       setSkillConfidence(initialConfidence)
-      setLiveScore(result.readinessScore)
+      setLiveScore(result.finalScore)
     }
   }, [result])
 
   // Calculate live score based on skill confidence
   useEffect(() => {
     if (result) {
-      let adjustedScore = result.readinessScore
+      let adjustedScore = result.baseScore
       Object.values(skillConfidence).forEach((confidence) => {
         if (confidence === 'know') {
           adjustedScore += 2
@@ -66,7 +66,18 @@ function Results() {
           adjustedScore -= 2
         }
       })
-      setLiveScore(Math.max(0, Math.min(100, adjustedScore)))
+      const newScore = Math.max(0, Math.min(100, adjustedScore))
+      setLiveScore(newScore)
+      
+      // Update finalScore in result when it changes
+      if (result && newScore !== result.finalScore) {
+        const updatedResult = {
+          ...result,
+          finalScore: newScore,
+          updatedAt: new Date().toISOString()
+        }
+        updateAnalysis(updatedResult)
+      }
     }
   }, [skillConfidence, result])
 
@@ -124,7 +135,7 @@ function Results() {
     )
   }
 
-  const { company, role, extractedSkills, readinessScore, checklist, plan, questions, createdAt } = result
+  const { company, role, extractedSkills, baseScore, checklist, plan, questions, createdAt } = result
 
   const categoryIcons: Record<keyof ExtractedSkills, React.ReactNode> = {
     'Core CS': <Cpu className="w-4 h-4" />,
@@ -250,9 +261,9 @@ ${getWeakSkills().join(', ') || 'None - Great job!'}
           <div className="text-right">
             <div className="text-3xl font-bold text-primary">{liveScore}/100</div>
             <div className="text-sm text-gray-500">Live Readiness Score</div>
-            {liveScore !== readinessScore && (
+            {liveScore !== baseScore && (
               <div className="text-xs text-gray-400">
-                Base: {readinessScore} {liveScore > readinessScore ? '+' : ''}{liveScore - readinessScore}
+                Base: {baseScore} {liveScore > baseScore ? '+' : ''}{liveScore - baseScore}
               </div>
             )}
           </div>
@@ -525,7 +536,7 @@ ${getWeakSkills().join(', ') || 'None - Great job!'}
                 </div>
                 <div className="border-t pt-3 flex justify-between">
                   <span className="font-semibold text-gray-900">Total</span>
-                  <span className="font-bold text-primary text-lg">{readinessScore}</span>
+                  <span className="font-bold text-primary text-lg">{baseScore}</span>
                 </div>
               </div>
             </CardContent>

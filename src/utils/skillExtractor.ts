@@ -12,17 +12,19 @@ export type SkillConfidence = 'know' | 'practice'
 export interface AnalysisResult {
   id: string
   createdAt: string
+  updatedAt: string
   company: string
   role: string
   jdText: string
   extractedSkills: ExtractedSkills
-  readinessScore: number
+  baseScore: number
+  finalScore: number
+  skillConfidenceMap: Record<string, SkillConfidence>
   checklist: RoundChecklist[]
   plan: DayPlan[]
   questions: string[]
-  skillConfidenceMap?: Record<string, SkillConfidence>
-  companyIntel?: import('./companyIntel').CompanyIntel
-  roundMapping?: import('./companyIntel').RoundMapping[]
+  roundMapping?: RoundMappingItem[]
+  companyIntel?: CompanyIntel
 }
 
 export interface RoundChecklist {
@@ -35,6 +37,22 @@ export interface DayPlan {
   day: number
   title: string
   tasks: string[]
+}
+
+// Import types from companyIntel
+interface RoundMappingItem {
+  round: number
+  title: string
+  description: string
+  whyItMatters: string
+  focusAreas: string[]
+}
+
+interface CompanyIntel {
+  name: string
+  industry: string
+  size: 'Startup' | 'Mid-size' | 'Enterprise'
+  hiringFocus: string
 }
 
 type SkillCategory = keyof ExtractedSkills
@@ -364,14 +382,24 @@ export async function analyzeJD(company: string, role: string, jdText: string): 
     ? generateRoundMapping(companyIntel.size, hasDSA, hasWeb, hasSystemDesign)
     : undefined
 
+  // Initialize skill confidence map with all skills set to 'practice'
+  const allSkills = Object.values(extractedSkills).flat()
+  const skillConfidenceMap: Record<string, SkillConfidence> = {}
+  allSkills.forEach(skill => {
+    skillConfidenceMap[skill] = 'practice'
+  })
+
   return {
     id: Date.now().toString(),
     createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
     company,
     role,
     jdText,
     extractedSkills,
-    readinessScore,
+    baseScore: readinessScore,
+    finalScore: readinessScore,
+    skillConfidenceMap,
     checklist,
     plan,
     questions,

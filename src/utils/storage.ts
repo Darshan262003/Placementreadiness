@@ -10,8 +10,36 @@ export function saveAnalysis(result: AnalysisResult): void {
 
 export function getHistory(): AnalysisResult[] {
   if (typeof window === 'undefined') return []
-  const stored = localStorage.getItem(STORAGE_KEY)
-  return stored ? JSON.parse(stored) : []
+  
+  try {
+    const stored = localStorage.getItem(STORAGE_KEY)
+    if (!stored) return []
+    
+    const parsed = JSON.parse(stored)
+    if (!Array.isArray(parsed)) {
+      // Corrupted data - clear it
+      localStorage.removeItem(STORAGE_KEY)
+      return []
+    }
+    
+    // Basic validation - ensure each entry has required fields
+    const validEntries = parsed.filter((entry: unknown) => {
+      return entry && 
+             typeof entry === 'object' &&
+             typeof (entry as AnalysisResult).id === 'string' &&
+             typeof (entry as AnalysisResult).jdText === 'string'
+    })
+    
+    // If some entries were filtered out, save cleaned history
+    if (validEntries.length < parsed.length) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(validEntries))
+    }
+    
+    return validEntries as AnalysisResult[]
+  } catch (error) {
+    console.error('Error loading history:', error)
+    return []
+  }
 }
 
 export function getAnalysisById(id: string): AnalysisResult | null {

@@ -151,10 +151,10 @@ function History() {
                 </div>
 
                 <div className="flex items-center gap-4">
-                  <div className={`px-4 py-2 rounded-lg ${getScoreColor(item.readinessScore)}`}>
+                  <div className={`px-4 py-2 rounded-lg ${getScoreColor(item.finalScore)}`}>
                     <div className="flex items-center gap-2">
                       <TrendingUp className="w-4 h-4" />
-                      <span className="font-bold">{item.readinessScore}</span>
+                      <span className="font-bold">{item.finalScore}</span>
                     </div>
                   </div>
                   <button

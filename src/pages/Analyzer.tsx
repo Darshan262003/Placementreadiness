@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../components/ui/Card'
 import { analyzeJD } from '../utils/skillExtractor'
 import { saveAnalysis } from '../utils/storage'
-import { Briefcase, Building2, FileText, Sparkles } from 'lucide-react'
+import { Briefcase, Building2, FileText, Sparkles, AlertCircle } from 'lucide-react'
 
 function Analyzer() {
   const navigate = useNavigate()
@@ -79,7 +79,7 @@ function Analyzer() {
           <div>
             <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
               <FileText className="w-4 h-4" />
-              Job Description
+              Job Description <span className="text-red-500">*</span>
             </label>
             <textarea
               value={jdText}
@@ -87,15 +87,28 @@ function Analyzer() {
               placeholder="Paste the full job description here... Include requirements, skills needed, and responsibilities for better analysis."
               rows={12}
               className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent outline-none resize-y"
+              required
             />
             <div className="flex justify-between mt-2">
-              <span className={`text-xs ${jdText.length > 800 ? 'text-green-600' : 'text-gray-400'}`}>
-                {jdText.length} characters {jdText.length > 800 && '✓ Detailed JD'}
+              <span className={`text-xs ${jdText.length > 800 ? 'text-green-600' : jdText.length < 200 && jdText.length > 0 ? 'text-orange-500' : 'text-gray-400'}`}>
+                {jdText.length} characters 
+                {jdText.length > 800 && '✓ Detailed JD'}
+                {jdText.length > 0 && jdText.length < 200 && '⚠ Too short'}
               </span>
               <span className="text-xs text-gray-400">
-                Minimum 50 characters
+                Required • Minimum 50 characters
               </span>
             </div>
+            
+            {/* JD Length Warning */}
+            {jdText.length > 0 && jdText.length < 200 && (
+              <div className="mt-3 p-3 bg-orange-50 border border-orange-200 rounded-lg flex items-start gap-2">
+                <AlertCircle className="w-5 h-5 text-orange-500 flex-shrink-0 mt-0.5" />
+                <p className="text-sm text-orange-700">
+                  This JD is too short to analyze deeply. Paste full JD for better output.
+                </p>
+              </div>
+            )}
           </div>
 
           {/* Analyze Button */}
