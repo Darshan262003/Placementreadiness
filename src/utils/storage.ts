@@ -19,6 +19,15 @@ export function getAnalysisById(id: string): AnalysisResult | null {
   return history.find(item => item.id === id) || null
 }
 
+export function updateAnalysis(updatedResult: AnalysisResult): void {
+  const history = getHistory()
+  const index = history.findIndex(item => item.id === updatedResult.id)
+  if (index !== -1) {
+    history[index] = updatedResult
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(history))
+  }
+}
+
 export function deleteAnalysis(id: string): void {
   const history = getHistory()
   const filtered = history.filter(item => item.id !== id)
