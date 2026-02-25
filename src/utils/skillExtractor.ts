@@ -21,6 +21,8 @@ export interface AnalysisResult {
   plan: DayPlan[]
   questions: string[]
   skillConfidenceMap?: Record<string, SkillConfidence>
+  companyIntel?: import('./companyIntel').CompanyIntel
+  roundMapping?: import('./companyIntel').RoundMapping[]
 }
 
 export interface RoundChecklist {
@@ -345,12 +347,22 @@ export function generateQuestions(skills: ExtractedSkills): string[] {
   return questions.slice(0, 10)
 }
 
-export function analyzeJD(company: string, role: string, jdText: string): AnalysisResult {
+export async function analyzeJD(company: string, role: string, jdText: string): Promise<AnalysisResult> {
   const extractedSkills = extractSkills(jdText)
   const readinessScore = calculateReadinessScore(extractedSkills, company, role, jdText)
   const checklist = generateChecklist(extractedSkills)
   const plan = generatePlan(extractedSkills)
   const questions = generateQuestions(extractedSkills)
+  
+  // Generate company intel and round mapping
+  const { generateCompanyIntel, generateRoundMapping } = await import('./companyIntel')
+  const companyIntel = generateCompanyIntel(company, jdText) || undefined
+  const hasDSA = extractedSkills['Core CS'].includes('DSA')
+  const hasWeb = extractedSkills['Web'].length > 0
+  const hasSystemDesign = extractedSkills['Core CS'].includes('OOP') || extractedSkills['Web'].length > 0
+  const roundMapping = companyIntel 
+    ? generateRoundMapping(companyIntel.size, hasDSA, hasWeb, hasSystemDesign)
+    : undefined
 
   return {
     id: Date.now().toString(),
@@ -362,6 +374,8 @@ export function analyzeJD(company: string, role: string, jdText: string): Analys
     readinessScore,
     checklist,
     plan,
-    questions
+    questions,
+    companyIntel,
+    roundMapping
   }
 }

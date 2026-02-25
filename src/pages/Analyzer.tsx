@@ -12,14 +12,14 @@ function Analyzer() {
   const [jdText, setJdText] = useState('')
   const [isAnalyzing, setIsAnalyzing] = useState(false)
 
-  const handleAnalyze = () => {
+  const handleAnalyze = async () => {
     if (!jdText.trim()) return
 
     setIsAnalyzing(true)
     
     // Simulate brief delay for UX
-    setTimeout(() => {
-      const result = analyzeJD(company, role, jdText)
+    setTimeout(async () => {
+      const result = await analyzeJD(company, role, jdText)
       saveAnalysis(result)
       navigate('/results', { state: { result } })
     }, 500)
