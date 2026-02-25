@@ -8,6 +8,9 @@ import Practice from './pages/Practice'
 import Assessments from './pages/Assessments'
 import Resources from './pages/Resources'
 import Profile from './pages/Profile'
+import Analyzer from './pages/Analyzer'
+import Results from './pages/Results'
+import History from './pages/History'
 
 function App() {
   return (
@@ -19,6 +22,9 @@ function App() {
         {/* Dashboard Routes */}
         <Route path="/" element={<DashboardLayout />}>
           <Route path="dashboard" element={<Dashboard />} />
+          <Route path="analyzer" element={<Analyzer />} />
+          <Route path="results" element={<Results />} />
+          <Route path="history" element={<History />} />
           <Route path="practice" element={<Practice />} />
           <Route path="assessments" element={<Assessments />} />
           <Route path="resources" element={<Resources />} />
