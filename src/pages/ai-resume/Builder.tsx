@@ -1,17 +1,34 @@
 import { useState, useMemo } from 'react'
-import { Plus, Trash2, RefreshCw, Lightbulb } from 'lucide-react'
+import { Plus, Trash2, RefreshCw, Lightbulb, AlertCircle, TrendingUp, Layout } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/Card'
 import { useResume } from '../../components/AIResumeLayout'
-import { SAMPLE_RESUME, type Education, type Experience, type Project } from '../../types/aiResume'
+import { SAMPLE_RESUME, type Education, type Experience, type Project, type ResumeTemplate, getSavedTemplate, saveTemplate } from '../../types/aiResume'
 import ResumePreview from './ResumePreview'
 import { calculateATSScore, getScoreLabel, getScoreColor, getScoreBgColor } from '../../utils/atsScoring'
+import { analyzeBullet } from '../../utils/bulletGuidance'
+import { getTopImprovements, getPriorityColor, getPriorityLabel } from '../../utils/improvements'
+
+const TEMPLATES: { id: ResumeTemplate; label: string }[] = [
+  { id: 'classic', label: 'Classic' },
+  { id: 'modern', label: 'Modern' },
+  { id: 'minimal', label: 'Minimal' }
+]
 
 function Builder() {
   const { resume, updateResume, updatePersonalInfo, updateLinks, setResume } = useResume()
   const [skillsInput, setSkillsInput] = useState(resume.skills.join(', '))
+  const [template, setTemplate] = useState<ResumeTemplate>(getSavedTemplate())
 
   // Calculate ATS score
   const atsScore = useMemo(() => calculateATSScore(resume), [resume])
+  
+  // Get top improvements
+  const improvements = useMemo(() => getTopImprovements(resume), [resume])
+
+  const handleTemplateChange = (newTemplate: ResumeTemplate) => {
+    setTemplate(newTemplate)
+    saveTemplate(newTemplate)
+  }
 
   const handleLoadSample = () => {
     setResume(SAMPLE_RESUME)
@@ -94,6 +111,24 @@ function Builder() {
     updateResume({
       projects: resume.projects.filter(proj => proj.id !== id)
     })
+  }
+
+  // Bullet guidance component
+  const BulletGuidance = ({ text }: { text: string }) => {
+    if (!text.trim()) return null
+    const feedback = analyzeBullet(text)
+    if (feedback.suggestions.length === 0) return null
+    
+    return (
+      <div className="mt-2 flex items-start gap-2 text-xs text-amber-600 bg-amber-50 p-2 rounded">
+        <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5" />
+        <div>
+          {feedback.suggestions.map((suggestion, i) => (
+            <p key={i}>{suggestion}</p>
+          ))}
+        </div>
+      </div>
+    )
   }
 
   return (
@@ -303,6 +338,7 @@ function Builder() {
                     rows={3}
                     className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-gray-200 focus:border-gray-400 outline-none resize-none"
                   />
+                  <BulletGuidance text={exp.description} />
                   <button
                     onClick={() => removeExperience(exp.id)}
                     className="flex items-center gap-1 text-sm text-red-600 hover:text-red-700"
@@ -344,6 +380,7 @@ function Builder() {
                     rows={2}
                     className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-gray-200 focus:border-gray-400 outline-none resize-none"
                   />
+                  <BulletGuidance text={proj.description} />
                   <input
                     type="text"
                     value={proj.link || ''}
@@ -410,8 +447,35 @@ function Builder() {
           </Card>
         </div>
 
-        {/* Right: ATS Score + Live Preview */}
+        {/* Right: ATS Score + Improvements + Template + Preview */}
         <div className="w-[450px] sticky top-24 h-fit space-y-4">
+          {/* Template Selector */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base flex items-center gap-2">
+                <Layout className="w-4 h-4" />
+                Template
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="flex gap-2">
+                {TEMPLATES.map((t) => (
+                  <button
+                    key={t.id}
+                    onClick={() => handleTemplateChange(t.id)}
+                    className={`flex-1 py-2 px-3 rounded-lg text-sm font-medium transition-colors ${
+                      template === t.id
+                        ? 'bg-gray-900 text-white'
+                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                    }`}
+                  >
+                    {t.label}
+                  </button>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+
           {/* ATS Score Card */}
           <Card>
             <CardHeader>
@@ -458,7 +522,7 @@ function Builder() {
                 </div>
               )}
 
-              {/* Score Breakdown (collapsed by default, shown when score is good) */}
+              {/* Score Breakdown */}
               {atsScore.score >= 75 && (
                 <div className="pt-4 border-t border-gray-100">
                   <p className="text-xs text-green-600 font-medium">
@@ -469,14 +533,41 @@ function Builder() {
             </CardContent>
           </Card>
 
+          {/* Top 3 Improvements */}
+          {improvements.length > 0 && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-base flex items-center gap-2">
+                  <TrendingUp className="w-4 h-4" />
+                  Top 3 Improvements
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  {improvements.map((improvement, index) => (
+                    <div key={index} className="p-3 bg-gray-50 rounded-lg">
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${getPriorityColor(improvement.priority)}`}>
+                          {getPriorityLabel(improvement.priority)}
+                        </span>
+                      </div>
+                      <p className="text-sm text-gray-700">{improvement.message}</p>
+                      <p className="text-xs text-gray-500 mt-1">{improvement.action}</p>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
           {/* Live Preview */}
           <div className="bg-white rounded-lg shadow-lg border border-gray-200 overflow-hidden">
             <div className="px-4 py-3 bg-gray-50 border-b border-gray-200 flex items-center justify-between">
               <span className="text-sm font-medium text-gray-700">Live Preview</span>
-              <span className="text-xs text-gray-400">Updates automatically</span>
+              <span className="text-xs text-gray-400">{template} template</span>
             </div>
             <div className="p-6">
-              <ResumePreview resume={resume} />
+              <ResumePreview resume={resume} template={template} />
             </div>
           </div>
         </div>

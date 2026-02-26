@@ -115,6 +115,29 @@ export const SAMPLE_RESUME: ResumeData = {
 }
 
 export const RESUME_STORAGE_KEY = 'resumeBuilderData'
+export const TEMPLATE_STORAGE_KEY = 'resumeBuilderTemplate'
+
+export type ResumeTemplate = 'classic' | 'modern' | 'minimal'
+
+export const DEFAULT_TEMPLATE: ResumeTemplate = 'classic'
+
+export function getSavedTemplate(): ResumeTemplate {
+  if (typeof window === 'undefined') return DEFAULT_TEMPLATE
+  try {
+    const stored = localStorage.getItem(TEMPLATE_STORAGE_KEY)
+    if (stored && ['classic', 'modern', 'minimal'].includes(stored)) {
+      return stored as ResumeTemplate
+    }
+    return DEFAULT_TEMPLATE
+  } catch {
+    return DEFAULT_TEMPLATE
+  }
+}
+
+export function saveTemplate(template: ResumeTemplate): void {
+  if (typeof window === 'undefined') return
+  localStorage.setItem(TEMPLATE_STORAGE_KEY, template)
+}
 
 export function getResumeData(): ResumeData {
   if (typeof window === 'undefined') return DEFAULT_RESUME
