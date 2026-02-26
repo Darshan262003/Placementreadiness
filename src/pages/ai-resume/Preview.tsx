@@ -1,29 +1,37 @@
 import { useState } from 'react'
-import { Layout, Printer, FileText, AlertTriangle, CheckCircle } from 'lucide-react'
+import { Printer, FileText, AlertTriangle, CheckCircle, Download, Palette } from 'lucide-react'
 import { useResume } from '../../components/AIResumeLayout'
 import ResumePreview from './ResumePreview'
-import { type ResumeTemplate, getSavedTemplate, saveTemplate } from '../../types/aiResume'
+import { type ResumeTemplate, type ResumeColor, getSavedTemplate, saveTemplate, getSavedColor, saveColor, COLOR_THEMES } from '../../types/aiResume'
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/Card'
 import { generatePlainTextResume, checkResumeCompleteness } from '../../utils/textExport'
-
-const TEMPLATES: { id: ResumeTemplate; label: string }[] = [
-  { id: 'classic', label: 'Classic' },
-  { id: 'modern', label: 'Modern' },
-  { id: 'minimal', label: 'Minimal' }
-]
+import { TemplateThumbnails } from '../../components/TemplateThumbnails'
+import { ColorPicker } from '../../components/ColorPicker'
 
 function Preview() {
   const { resume } = useResume()
   const [template, setTemplate] = useState<ResumeTemplate>(getSavedTemplate())
+  const [color, setColor] = useState<ResumeColor>(getSavedColor())
   const [copied, setCopied] = useState(false)
+  const [showPdfToast, setShowPdfToast] = useState(false)
 
   const handleTemplateChange = (newTemplate: ResumeTemplate) => {
     setTemplate(newTemplate)
     saveTemplate(newTemplate)
   }
 
+  const handleColorChange = (newColor: ResumeColor) => {
+    setColor(newColor)
+    saveColor(newColor)
+  }
+
   const handlePrint = () => {
     window.print()
+  }
+
+  const handlePdfDownload = () => {
+    setShowPdfToast(true)
+    setTimeout(() => setShowPdfToast(false), 3000)
   }
 
   const handleCopyText = async () => {
@@ -38,13 +46,14 @@ function Preview() {
   }
 
   const completeness = checkResumeCompleteness(resume)
+  const accentColor = COLOR_THEMES[color]
 
   return (
     <div className="max-w-4xl mx-auto px-6 py-12 print:px-0 print:py-0">
       {/* Header - Hidden in print */}
       <div className="text-center mb-8 print:hidden">
         <h1 className="text-2xl font-bold text-gray-900 mb-2">Resume Preview</h1>
-        <p className="text-gray-600">Clean, minimal design optimized for readability</p>
+        <p className="text-gray-600">Choose your template and customize colors</p>
       </div>
 
       {/* Validation Warning - Hidden in print */}
@@ -67,38 +76,48 @@ function Preview() {
       {/* Template Selector - Hidden in print */}
       <Card className="mb-6 print:hidden">
         <CardHeader>
+          <CardTitle className="text-base">Choose Template</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <TemplateThumbnails
+            activeTemplate={template}
+            onSelect={handleTemplateChange}
+            accentColor={accentColor}
+          />
+        </CardContent>
+      </Card>
+
+      {/* Color Theme Picker - Hidden in print */}
+      <Card className="mb-6 print:hidden">
+        <CardHeader>
           <CardTitle className="text-base flex items-center gap-2">
-            <Layout className="w-4 h-4" />
-            Choose Template
+            <Palette className="w-4 h-4" />
+            Color Theme
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="flex gap-2">
-            {TEMPLATES.map((t) => (
-              <button
-                key={t.id}
-                onClick={() => handleTemplateChange(t.id)}
-                className={`flex-1 py-2 px-3 rounded-lg text-sm font-medium transition-colors ${
-                  template === t.id
-                    ? 'bg-gray-900 text-white'
-                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                }`}
-              >
-                {t.label}
-              </button>
-            ))}
-          </div>
+          <ColorPicker
+            activeColor={color}
+            onSelect={handleColorChange}
+          />
         </CardContent>
       </Card>
 
       {/* Export Buttons - Hidden in print */}
       <div className="flex gap-3 mb-6 print:hidden">
         <button
-          onClick={handlePrint}
+          onClick={handlePdfDownload}
           className="flex-1 flex items-center justify-center gap-2 py-3 px-4 bg-gray-900 hover:bg-gray-800 text-white rounded-lg font-medium transition-colors"
         >
+          <Download className="w-4 h-4" />
+          Download PDF
+        </button>
+        <button
+          onClick={handlePrint}
+          className="flex-1 flex items-center justify-center gap-2 py-3 px-4 border border-gray-200 hover:bg-gray-50 rounded-lg font-medium transition-colors"
+        >
           <Printer className="w-4 h-4" />
-          Print / Save as PDF
+          Print
         </button>
         <button
           onClick={handleCopyText}
@@ -118,18 +137,31 @@ function Preview() {
         </button>
       </div>
 
+      {/* PDF Toast Notification */}
+      {showPdfToast && (
+        <div className="fixed bottom-6 right-6 z-50 animate-in slide-in-from-bottom-2 fade-in duration-200">
+          <div className="bg-gray-900 text-white px-4 py-3 rounded-lg shadow-lg flex items-center gap-3">
+            <CheckCircle className="w-5 h-5 text-green-400" />
+            <div>
+              <p className="font-medium text-sm">PDF export ready!</p>
+              <p className="text-xs text-gray-400">Check your downloads.</p>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Resume Display */}
       <div className="bg-white shadow-lg border border-gray-200 print:shadow-none print:border-none">
         {/* Page indicator - Hidden in print */}
         <div className="px-8 py-4 bg-gray-50 border-b border-gray-200 flex items-center justify-between print:hidden">
           <span className="text-sm text-gray-500">Page 1 of 1</span>
-          <span className="text-xs text-gray-400">A4 Format • {template}</span>
+          <span className="text-xs text-gray-400">{template} • {color}</span>
         </div>
 
         {/* Resume Content */}
         <div className="p-12 print:p-0">
-          <div className="max-w-2xl mx-auto">
-            <ResumePreview resume={resume} template={template} />
+          <div className="max-w-3xl mx-auto">
+            <ResumePreview resume={resume} template={template} color={color} />
           </div>
         </div>
       </div>
@@ -140,7 +172,7 @@ function Preview() {
           This is how your resume will look when exported.
         </p>
         <p className="text-xs text-gray-400 mt-1">
-          Black and white design ensures maximum compatibility with ATS systems.
+          Colors and layouts are optimized for both screen viewing and printing.
         </p>
       </div>
 

@@ -2,7 +2,7 @@ import { useState, useMemo } from 'react'
 import { Plus, Trash2, RefreshCw, Lightbulb, AlertCircle, TrendingUp, Layout } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/Card'
 import { useResume } from '../../components/AIResumeLayout'
-import { SAMPLE_RESUME, type Education, type Experience, type ResumeTemplate, type CategorizedSkills, getSavedTemplate, saveTemplate } from '../../types/aiResume'
+import { SAMPLE_RESUME, type Education, type Experience, type ResumeTemplate, type ResumeColor, type CategorizedSkills, getSavedTemplate, saveTemplate, getSavedColor, saveColor } from '../../types/aiResume'
 import ResumePreview from './ResumePreview'
 import { calculateATSScore, getScoreLabel, getScoreColor, getScoreBgColor } from '../../utils/atsScoring'
 import { analyzeBullet } from '../../utils/bulletGuidance'
@@ -19,6 +19,7 @@ const TEMPLATES: { id: ResumeTemplate; label: string }[] = [
 function Builder() {
   const { resume, updateResume, updatePersonalInfo, updateLinks, setResume } = useResume()
   const [template, setTemplate] = useState<ResumeTemplate>(getSavedTemplate())
+  const [color, setColor] = useState<ResumeColor>(getSavedColor())
 
   // Calculate ATS score
   const atsScore = useMemo(() => calculateATSScore(resume), [resume])
@@ -30,6 +31,10 @@ function Builder() {
     setTemplate(newTemplate)
     saveTemplate(newTemplate)
   }
+
+  // Color is managed in Preview page, but we keep it in state for live preview sync
+  // The color change handler is in Preview.tsx
+  setColor; saveColor;
 
   const handleLoadSample = () => {
     setResume(SAMPLE_RESUME)
@@ -503,7 +508,7 @@ function Builder() {
               <span className="text-xs text-gray-400">{template} template</span>
             </div>
             <div className="p-6">
-              <ResumePreview resume={resume} template={template} />
+              <ResumePreview resume={resume} template={template} color={color} />
             </div>
           </div>
         </div>

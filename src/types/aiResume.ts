@@ -134,10 +134,21 @@ export const SAMPLE_RESUME: ResumeData = {
 
 export const RESUME_STORAGE_KEY = 'resumeBuilderData'
 export const TEMPLATE_STORAGE_KEY = 'resumeBuilderTemplate'
+export const COLOR_STORAGE_KEY = 'resumeBuilderColor'
 
 export type ResumeTemplate = 'classic' | 'modern' | 'minimal'
+export type ResumeColor = 'teal' | 'navy' | 'burgundy' | 'forest' | 'charcoal'
 
 export const DEFAULT_TEMPLATE: ResumeTemplate = 'classic'
+export const DEFAULT_COLOR: ResumeColor = 'teal'
+
+export const COLOR_THEMES: Record<ResumeColor, string> = {
+  teal: 'hsl(168, 60%, 40%)',
+  navy: 'hsl(220, 60%, 35%)',
+  burgundy: 'hsl(345, 60%, 35%)',
+  forest: 'hsl(150, 50%, 30%)',
+  charcoal: 'hsl(0, 0%, 25%)'
+}
 
 export function getSavedTemplate(): ResumeTemplate {
   if (typeof window === 'undefined') return DEFAULT_TEMPLATE
@@ -155,6 +166,24 @@ export function getSavedTemplate(): ResumeTemplate {
 export function saveTemplate(template: ResumeTemplate): void {
   if (typeof window === 'undefined') return
   localStorage.setItem(TEMPLATE_STORAGE_KEY, template)
+}
+
+export function getSavedColor(): ResumeColor {
+  if (typeof window === 'undefined') return DEFAULT_COLOR
+  try {
+    const stored = localStorage.getItem(COLOR_STORAGE_KEY)
+    if (stored && ['teal', 'navy', 'burgundy', 'forest', 'charcoal'].includes(stored)) {
+      return stored as ResumeColor
+    }
+    return DEFAULT_COLOR
+  } catch {
+    return DEFAULT_COLOR
+  }
+}
+
+export function saveColor(color: ResumeColor): void {
+  if (typeof window === 'undefined') return
+  localStorage.setItem(COLOR_STORAGE_KEY, color)
 }
 
 export function getResumeData(): ResumeData {
