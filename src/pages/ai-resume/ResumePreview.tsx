@@ -105,13 +105,13 @@ function ResumePreview({ resume, template = 'classic' }: ResumePreviewProps) {
 
       {/* Experience */}
       {hasExperience && (
-        <div className="mb-4">
+        <div className="mb-4 print:break-inside-avoid">
           <h2 className={styles.sectionTitle}>
             Experience
           </h2>
           <div className="space-y-3">
             {experience.map((exp) => (
-              <div key={exp.id}>
+              <div key={exp.id} className="print:break-inside-avoid">
                 <div className="flex justify-between items-start">
                   <div>
                     <h3 className="font-semibold text-sm">{exp.title || 'Job Title'}</h3>
@@ -132,13 +132,13 @@ function ResumePreview({ resume, template = 'classic' }: ResumePreviewProps) {
 
       {/* Education */}
       {hasEducation && (
-        <div className="mb-4">
+        <div className="mb-4 print:break-inside-avoid">
           <h2 className={styles.sectionTitle}>
             Education
           </h2>
           <div className="space-y-2">
             {education.map((ed) => (
-              <div key={ed.id} className="flex justify-between items-start">
+              <div key={ed.id} className="flex justify-between items-start print:break-inside-avoid">
                 <div>
                   <h3 className="font-semibold text-sm">{ed.school || 'School'}</h3>
                   <p className="text-xs text-gray-600">
@@ -156,13 +156,13 @@ function ResumePreview({ resume, template = 'classic' }: ResumePreviewProps) {
 
       {/* Projects */}
       {hasProjects && (
-        <div className="mb-4">
+        <div className="mb-4 print:break-inside-avoid">
           <h2 className={styles.sectionTitle}>
             Projects
           </h2>
           <div className="space-y-2">
             {projects.map((proj) => (
-              <div key={proj.id}>
+              <div key={proj.id} className="print:break-inside-avoid">
                 <div className="flex justify-between items-start">
                   <h3 className="font-semibold text-sm">{proj.name || 'Project Name'}</h3>
                   {proj.link && (
