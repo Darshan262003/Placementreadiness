@@ -40,11 +40,12 @@ export function getTopImprovements(resume: ResumeData): Improvement[] {
   }
 
   // Check skills count
-  if (resume.skills.length < 8) {
-    const needed = 8 - resume.skills.length
+  const totalSkills = resume.skills.technical.length + resume.skills.soft.length + resume.skills.tools.length
+  if (totalSkills < 8) {
+    const needed = 8 - totalSkills
     improvements.push({
       priority: 'medium',
-      message: `You have ${resume.skills.length} skills.`,
+      message: `You have ${totalSkills} skills.`,
       action: `Add ${needed} more skill${needed === 1 ? '' : 's'} (target 8+).`
     })
   }

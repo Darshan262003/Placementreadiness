@@ -42,8 +42,9 @@ export function calculateATSScore(resume: ResumeData): ATSScore {
     breakdown.experience = 10
   }
 
-  // +10 if skills list has >= 8 items
-  if (resume.skills.length >= 8) {
+  // +10 if skills list has >= 8 items total across all categories
+  const totalSkills = resume.skills.technical.length + resume.skills.soft.length + resume.skills.tools.length
+  if (totalSkills >= 8) {
     breakdown.skills = 10
   }
 
@@ -127,7 +128,8 @@ function generateSuggestions(resume: ResumeData, breakdown: ATSScore['breakdown'
 
   // Skills suggestion
   if (breakdown.skills === 0) {
-    const needed = 8 - resume.skills.length
+    const totalSkills = resume.skills.technical.length + resume.skills.soft.length + resume.skills.tools.length
+    const needed = 8 - totalSkills
     suggestions.push(`Add ${needed} more skill${needed === 1 ? '' : 's'} (target 8+).`)
   }
 

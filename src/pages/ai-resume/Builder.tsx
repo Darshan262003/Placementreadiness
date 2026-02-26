@@ -2,11 +2,13 @@ import { useState, useMemo } from 'react'
 import { Plus, Trash2, RefreshCw, Lightbulb, AlertCircle, TrendingUp, Layout } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/Card'
 import { useResume } from '../../components/AIResumeLayout'
-import { SAMPLE_RESUME, type Education, type Experience, type Project, type ResumeTemplate, getSavedTemplate, saveTemplate } from '../../types/aiResume'
+import { SAMPLE_RESUME, type Education, type Experience, type ResumeTemplate, type CategorizedSkills, getSavedTemplate, saveTemplate } from '../../types/aiResume'
 import ResumePreview from './ResumePreview'
 import { calculateATSScore, getScoreLabel, getScoreColor, getScoreBgColor } from '../../utils/atsScoring'
 import { analyzeBullet } from '../../utils/bulletGuidance'
 import { getTopImprovements, getPriorityColor, getPriorityLabel } from '../../utils/improvements'
+import { SkillsInput } from '../../components/SkillsInput'
+import { ProjectsInput } from '../../components/ProjectsInput'
 
 const TEMPLATES: { id: ResumeTemplate; label: string }[] = [
   { id: 'classic', label: 'Classic' },
@@ -16,7 +18,6 @@ const TEMPLATES: { id: ResumeTemplate; label: string }[] = [
 
 function Builder() {
   const { resume, updateResume, updatePersonalInfo, updateLinks, setResume } = useResume()
-  const [skillsInput, setSkillsInput] = useState(resume.skills.join(', '))
   const [template, setTemplate] = useState<ResumeTemplate>(getSavedTemplate())
 
   // Calculate ATS score
@@ -32,12 +33,9 @@ function Builder() {
 
   const handleLoadSample = () => {
     setResume(SAMPLE_RESUME)
-    setSkillsInput(SAMPLE_RESUME.skills.join(', '))
   }
 
-  const handleSkillsChange = (value: string) => {
-    setSkillsInput(value)
-    const skills = value.split(',').map(s => s.trim()).filter(Boolean)
+  const handleSkillsChange = (skills: CategorizedSkills) => {
     updateResume({ skills })
   }
 
@@ -88,28 +86,6 @@ function Builder() {
   const removeExperience = (id: string) => {
     updateResume({
       experience: resume.experience.filter(exp => exp.id !== id)
-    })
-  }
-
-  // Project handlers
-  const addProject = () => {
-    const newProj: Project = {
-      id: Date.now().toString(),
-      name: '',
-      description: ''
-    }
-    updateResume({ projects: [...resume.projects, newProj] })
-  }
-
-  const updateProject = (id: string, updates: Partial<Project>) => {
-    updateResume({
-      projects: resume.projects.map(proj => proj.id === id ? { ...proj, ...updates } : proj)
-    })
-  }
-
-  const removeProject = (id: string) => {
-    updateResume({
-      projects: resume.projects.filter(proj => proj.id !== id)
     })
   }
 
@@ -353,50 +329,14 @@ function Builder() {
 
           {/* Projects */}
           <Card>
-            <CardHeader className="flex flex-row items-center justify-between">
+            <CardHeader>
               <CardTitle className="text-base">Projects</CardTitle>
-              <button
-                onClick={addProject}
-                className="flex items-center gap-1 px-3 py-1 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
-              >
-                <Plus className="w-4 h-4" />
-                Add
-              </button>
             </CardHeader>
-            <CardContent className="space-y-4">
-              {resume.projects.map((proj) => (
-                <div key={proj.id} className="p-4 bg-gray-50 rounded-lg space-y-3">
-                  <input
-                    type="text"
-                    value={proj.name}
-                    onChange={(e) => updateProject(proj.id, { name: e.target.value })}
-                    placeholder="Project Name"
-                    className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-gray-200 focus:border-gray-400 outline-none"
-                  />
-                  <textarea
-                    value={proj.description}
-                    onChange={(e) => updateProject(proj.id, { description: e.target.value })}
-                    placeholder="Project description..."
-                    rows={2}
-                    className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-gray-200 focus:border-gray-400 outline-none resize-none"
-                  />
-                  <BulletGuidance text={proj.description} />
-                  <input
-                    type="text"
-                    value={proj.link || ''}
-                    onChange={(e) => updateProject(proj.id, { link: e.target.value })}
-                    placeholder="Project Link (optional)"
-                    className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-gray-200 focus:border-gray-400 outline-none"
-                  />
-                  <button
-                    onClick={() => removeProject(proj.id)}
-                    className="flex items-center gap-1 text-sm text-red-600 hover:text-red-700"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                    Remove
-                  </button>
-                </div>
-              ))}
+            <CardContent>
+              <ProjectsInput
+                projects={resume.projects}
+                onChange={(projects) => updateResume({ projects })}
+              />
             </CardContent>
           </Card>
 
@@ -406,14 +346,10 @@ function Builder() {
               <CardTitle className="text-base">Skills</CardTitle>
             </CardHeader>
             <CardContent>
-              <textarea
-                value={skillsInput}
-                onChange={(e) => handleSkillsChange(e.target.value)}
-                placeholder="React, TypeScript, Node.js, Python, AWS..."
-                rows={3}
-                className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-gray-200 focus:border-gray-400 outline-none resize-none"
+              <SkillsInput
+                skills={resume.skills}
+                onChange={handleSkillsChange}
               />
-              <p className="text-xs text-gray-500 mt-2">Separate skills with commas</p>
             </CardContent>
           </Card>
 

@@ -1,5 +1,5 @@
 import { type ResumeData, type ResumeTemplate } from '../../types/aiResume'
-import { Mail, Phone, MapPin, Github, Linkedin } from 'lucide-react'
+import { Mail, Phone, MapPin, Github, Linkedin, ExternalLink } from 'lucide-react'
 
 interface ResumePreviewProps {
   resume: ResumeData
@@ -45,7 +45,7 @@ function ResumePreview({ resume, template = 'classic' }: ResumePreviewProps) {
   const hasEducation = education.length > 0 && education.some(ed => ed.school.trim())
   const hasExperience = experience.length > 0 && experience.some(exp => exp.company.trim() || exp.title.trim())
   const hasProjects = projects.length > 0 && projects.some(proj => proj.name.trim())
-  const hasSkills = skills.length > 0
+  const hasSkills = skills.technical.length > 0 || skills.soft.length > 0 || skills.tools.length > 0
   const hasLinks = links.github.trim() || links.linkedin.trim()
 
   const styles = TEMPLATE_STYLES[template]
@@ -160,17 +160,40 @@ function ResumePreview({ resume, template = 'classic' }: ResumePreviewProps) {
           <h2 className={styles.sectionTitle}>
             Projects
           </h2>
-          <div className="space-y-2">
+          <div className="space-y-3">
             {projects.map((proj) => (
               <div key={proj.id} className="print:break-inside-avoid">
                 <div className="flex justify-between items-start">
                   <h3 className="font-semibold text-sm">{proj.name || 'Project Name'}</h3>
-                  {proj.link && (
-                    <span className="text-xs text-gray-500">{proj.link}</span>
-                  )}
+                  <div className="flex items-center gap-2">
+                    {proj.liveUrl && (
+                      <span className="text-xs text-gray-500 flex items-center gap-1">
+                        <ExternalLink className="w-3 h-3" />
+                        Live
+                      </span>
+                    )}
+                    {proj.githubUrl && (
+                      <span className="text-xs text-gray-500 flex items-center gap-1">
+                        <Github className="w-3 h-3" />
+                        Code
+                      </span>
+                    )}
+                  </div>
                 </div>
                 {proj.description && (
                   <p className="text-xs mt-1 leading-relaxed">{proj.description}</p>
+                )}
+                {proj.techStack.length > 0 && (
+                  <div className="flex flex-wrap gap-1 mt-2">
+                    {proj.techStack.map((tech) => (
+                      <span
+                        key={tech}
+                        className="px-2 py-0.5 bg-gray-100 text-gray-600 rounded text-xs"
+                      >
+                        {tech}
+                      </span>
+                    ))}
+                  </div>
                 )}
               </div>
             ))}
@@ -184,7 +207,26 @@ function ResumePreview({ resume, template = 'classic' }: ResumePreviewProps) {
           <h2 className={styles.sectionTitle}>
             Skills
           </h2>
-          <p className="text-xs">{skills.join(' • ')}</p>
+          <div className="space-y-2">
+            {skills.technical.length > 0 && (
+              <div>
+                <span className="text-xs font-medium text-gray-600">Technical: </span>
+                <span className="text-xs">{skills.technical.join(' • ')}</span>
+              </div>
+            )}
+            {skills.soft.length > 0 && (
+              <div>
+                <span className="text-xs font-medium text-gray-600">Soft Skills: </span>
+                <span className="text-xs">{skills.soft.join(' • ')}</span>
+              </div>
+            )}
+            {skills.tools.length > 0 && (
+              <div>
+                <span className="text-xs font-medium text-gray-600">Tools: </span>
+                <span className="text-xs">{skills.tools.join(' • ')}</span>
+              </div>
+            )}
+          </div>
         </div>
       )}
 
