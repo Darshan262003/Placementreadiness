@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Outlet, NavLink, useLocation } from 'react-router-dom'
-import { FileText, Edit3, Eye, CheckCircle } from 'lucide-react'
+import { FileText, Edit3, Eye, CheckCircle, ClipboardCheck } from 'lucide-react'
 import { type ResumeData, getResumeData, saveResumeData } from '../types/aiResume'
 
 export function useResume() {
@@ -78,6 +78,19 @@ function AIResumeLayout() {
               >
                 <Eye className="w-4 h-4" />
                 Preview
+              </NavLink>
+              <NavLink
+                to="/ai-resume/test"
+                className={({ isActive }) =>
+                  `flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                    isActive
+                      ? 'bg-gray-100 text-gray-900'
+                      : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                  }`
+                }
+              >
+                <ClipboardCheck className="w-4 h-4" />
+                Test
               </NavLink>
               <NavLink
                 to="/ai-resume/proof"

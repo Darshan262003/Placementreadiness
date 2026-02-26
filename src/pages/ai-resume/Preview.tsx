@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Printer, FileText, AlertTriangle, CheckCircle, Download, Palette } from 'lucide-react'
+import { Printer, FileText, AlertTriangle, CheckCircle, Download, Palette, Target } from 'lucide-react'
 import { useResume } from '../../components/AIResumeLayout'
 import ResumePreview from './ResumePreview'
 import { type ResumeTemplate, type ResumeColor, getSavedTemplate, saveTemplate, getSavedColor, saveColor, COLOR_THEMES } from '../../types/aiResume'
@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/Ca
 import { generatePlainTextResume, checkResumeCompleteness } from '../../utils/textExport'
 import { TemplateThumbnails } from '../../components/TemplateThumbnails'
 import { ColorPicker } from '../../components/ColorPicker'
+import { ATSScoreCircle, ATSScoreDetails } from '../../components/ATSScoreCircle'
 
 function Preview() {
   const { resume } = useResume()
@@ -55,6 +56,24 @@ function Preview() {
         <h1 className="text-2xl font-bold text-gray-900 mb-2">Resume Preview</h1>
         <p className="text-gray-600">Choose your template and customize colors</p>
       </div>
+
+      {/* ATS Score Card - Hidden in print */}
+      <Card className="mb-6 print:hidden">
+        <CardHeader>
+          <CardTitle className="text-base flex items-center gap-2">
+            <Target className="w-4 h-4" />
+            ATS Resume Score
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="flex gap-8 items-start">
+            <ATSScoreCircle resume={resume} />
+            <div className="flex-1">
+              <ATSScoreDetails resume={resume} />
+            </div>
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Validation Warning - Hidden in print */}
       {!completeness.isComplete && (

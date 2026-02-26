@@ -32,6 +32,7 @@ import AIResumeHome from './pages/ai-resume/Home'
 import AIResumeBuilder from './pages/ai-resume/Builder'
 import AIResumePreview from './pages/ai-resume/Preview'
 import AIResumeProof from './pages/ai-resume/Proof'
+import AIResumeTestChecklist from './pages/ai-resume/TestChecklist'
 
 function App() {
   return (
@@ -72,6 +73,7 @@ function App() {
           <Route index element={<AIResumeHome />} />
           <Route path="builder" element={<AIResumeBuilder />} />
           <Route path="preview" element={<AIResumePreview />} />
+          <Route path="test" element={<AIResumeTestChecklist />} />
           <Route path="proof" element={<AIResumeProof />} />
         </Route>
 
